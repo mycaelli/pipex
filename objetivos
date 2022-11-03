@@ -1,0 +1,5 @@
+
+
+1 - recebe 4 argumentos do shell
+2 - checar que file1 existe 
+3 - se file2 nao existe, criar

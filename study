@@ -1,0 +1,247 @@
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+ACCESS
+Check to see if a file or directory can be accessed
+It can be used to check whether a file exists or not
+
+int access( const char * path,  int amode );
+
+the second argument takes flags R_OK, W_OK, X_OK or F_OK
+F_OK flag : Used to check for existence of file.
+R_OK flag : Used to check for read permission bit.
+W_OK flag : Used to check for write permission bit.
+X_OK flag : Used to check for execute permission bit.
+
+ If access() cannot access the file, it will return -1 (fail) or else it will be 0 (success).
+
+REFERENCE: https://www.geeksforgeeks.org/access-command-in-linux-with-examples/
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+DUP
+creates a copy of a file descriptor
+
+It uses the lowest-numbered unused descriptor for the new descriptor
+the original and copy file descriptors may be used interchangeably
+They both refer to the same open file description and thus share file offset and file status flags
+
+int dup(int oldfd);
+oldfd: old file descriptor whose copy is to be created
+
+example
+    int new_fd = dup(old_fd);
+
+DUP2
+creates a copy of a file descriptor ut instead of using the lowest-numbered unused file descriptor, 
+it uses the descriptor number specified by the user
+
+int dup2(int oldfd, int newfd);
+oldfd: old file descriptor
+newfd: new file descriptor which is used by dup2() to create a copy.
+
+in place of newfd any file descriptor can be put. 
+    Example:
+        The file descriptor of Standard output (stdout) is used. 
+        This will lead all the printf() statements to be written in the file referred by the old file descriptor.
+        dup2(file_desc, 1);
+
+REFERENCE: https://www.geeksforgeeks.org/dup-dup2-linux-system-call/
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+EXECVE
+The exec family of functions replaces the current running process with a new process.
+It can be used to run a C program by using another C program.
+
+
+int execve(const char *path, char *const argv[], char *const envp[]);
+
+Path
+shows the name of the path of the file for the execution of a new process. 
+
+Arg0
+The very first argument arg0 must be the name of the editable file. 
+
+Envp
+is an array of pointers pointing towards the environment’s settings. 
+The system called exec() having the name that ends with the letter ‘e’ is used to alter the environment for the new process. 
+This is done by passing a list of the environment’s settings through the envp argument. That is how this parameter helps the exec system call. 
+This argument is a character array. Each element in the array points to a null-terminated string that defines an environment variable.
+
+int main(int argc, char **argv) {
+	char *args[] = {"ls", "-aF", "/", 0};	/* each element represents a command line argument */
+	char *env[] = { 0 };	/* leave the environment list null */
+
+	printf("About to run /bin/ls\n");
+	execve("/bin/ls", args, env);
+	perror("execve");	/* if we get here, execve failed */
+	exit(1);
+}
+
+REFERENCE: https://www.youtube.com/watch?v=5BE9qM79fgM&ab_channel=iFocusInstitute
+           https://people.cs.rutgers.edu/~pxk/416/notes/c-tutorials/exec.html
+           https://linuxhint.com/c-execve-function-usage/#:~:text=Execve()%20function%20is%20used,program%20and%20print%20the%20output.
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+EXIT 
+terminates the calling process immediately. Finishes the program. 
+Any open file descriptors belonging to the process are closed.
+
+void exit(int status)
+status -> This is the status value returned to the parent process.
+
+int main () {
+   printf("Start of the program....\n");
+   
+   printf("Exiting the program....\n");
+   exit(0);
+
+   printf("End of the program....\n");
+
+   return(0);
+}
+
+OUTPUT 
+        Start of the program....
+        Exiting the program....
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+FORK
+creating a new process, called a child process, which runs concurrently with the process that makes the fork() call (parent process)
+After a new child process is created, both processes will execute the next instruction following the fork() system call.
+
+return
+    Negative Value: creation of a child process was unsuccessful.   
+    Zero: Returned to the newly created child process.
+    Positive value: Returned to parent or caller.
+
+
+int main()
+{
+  
+    // make two process which run same
+    // program after this instruction
+    fork();
+  
+    printf("Hello world!\n");
+    return 0;
+}
+
+OUTPUT
+    Hello world!
+    Hello world!
+
+REFERENCE: https://www.geeksforgeeks.org/fork-system-call/
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+PIPE
+The pipe() system function is used to open file descriptors, which are used to communicate between different processes.
+
+int pipe(int pipefd[2]);
+
+The first element of the pipefd array, pipefd[0] is used for reading data from the pipe.
+The second element of the pipefd array, pipefd[1] is used for writing data to the pipe.
+
+REFERENCE:
+        https://linuxhint.com/pipe_system_call_c/#:~:text=pipe()%20is%20a%20Linux,inter%2Dprocess%20communication%20in%20Linux.
+
+EXEMPLO COMUNICAÇÃO ENTRE PROCESSO PAI E PROCESSO FILHO
+        https://linuxhint.com/using_pipe_function_c_language/
+
+        int main()
+        {
+                int     filedes[2], nbytes;
+                pid_t   childpid;
+                char    string[] = "Hello, world!\n";
+                char    readbuffer[80];
+
+                pipe(filedes);
+
+                if((childpid = fork()) == -1)
+                {
+                        perror("fork");
+                        exit(1);
+                }
+
+                if(childpid == 0)
+                {
+                        close(filedes[0]);//Child process does not need this end of the pipe
+
+                        /* Send "string" through the output side of pipe */
+                        write(filedes[1], string, (strlen(string)+1));
+                        exit(0);
+                }
+                else
+                {
+                        /* Parent process closes up output side of pipe */
+                        close(filedes[1]);//Parent process does not need this end of the pipe
+
+                        /* Read in a string from the pipe */
+                        nbytes = read(filedes[0], readbuffer, sizeof(readbuffer));
+                        printf("Read string: %s", readbuffer);
+                }
+
+                return(0);
+        }
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+UNLINK
+
+deletes a name from the filesystem.  If that name was the last link to a file and no processes have the file open, the
+file is deleted and the space it was using is made available for reuse.
+
+int unlink(const char *pathname);
+
+REFERENCE:
+        https://man7.org/linux/man-pages/man2/unlink.2.html 
+        https://linuxhint.com/unlink-system-call-in-c/
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+WAIT E WAITPID
+
+A função wait suspende a execução do processo até a morte de seu filho. 
+Se o filho já estiver morto no instante da chamada, a função retorna imediatamente.
+
+A função waitpid suspende a execução do processo até que o filho especificado pelo argumento pid tenha morrido. 
+Se ele já estiver morto no momento da chamada, o comportamento é idêntico ao da função wait.
+
+O valor do argumento pid pode ser:
+    < -1 : significando que o pai espera a morte de qualquer filho cujo o ID do grupo é igual so valor de pid;
+    -1 : significando que o pai espera a morte de qualquer filho;
+    0 : significando que o pai espera a morte de qualquer processo filho cujo ID do grupo é igual ao do processo chamado;
+    > 0 : significando que o pai espera a morte de um processo filho com um valor de ID exatamente igual a pid
+
+    pid_t wait(int *status)  
+    pid_t waitpid(pid_t pid, int *status, int options)
+
+REFERENCIA:
+    https://www.dca.ufrn.br/~adelardo/cursos/DCA409/node36.html#:~:text=A%20fun%C3%A7%C3%A3o%20wait%20suspende%20a,)%2C%20a%20fun%C3%A7%C3%A3o%20retorna%20imediatamente.
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+ < > E  << >> 
+both of these operators represent redirection in Linux
+
+A (<) represents input redirection
+        redirect the output to something else than stdin
+In the case of < the input comes from a file which the user specifies
+<< is known as here-document structure. You let the program know what will be the ending text, and whenever that delimiter is seen, 
+        the program will read all the stuff you've given to the program as input and perform a task upon it
+
+A (>) and (>>) is used for the output redirection
+        redirect the output to something else than stdout
+“>” overwrites an already existing file or a new file is created providing the mentioned file name isn’t there in the directory. 
+EXAMPLE
+        echo “Welcome to Linux” > my_file_1.txt -> creates file “my_file_1.txt” with the text “Welcome to Linux”, overwrites the file
+        echo “Welcome to Linux” >> my_file_1.txt -> doesnt overwrite what was on the file, output will be “Welcome to Linux Welcome to Linux"
+
+
+REFERENCE:
+        https://askubuntu.com/questions/678915/whats-the-difference-between-and-in-bash 
+        https://www.shells.com/l/en-US/tutorial/Difference-between-%E2%80%9C%3E%E2%80%9D-and-%E2%80%9C%3E%3E%E2%80%9D-in-Linux
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
