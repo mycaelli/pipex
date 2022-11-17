@@ -1,38 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   libft.h                                            :+:      :+:    :+:   */
+/*   ft_calloc.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mcerquei <mcerquei@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/04/26 20:15:58 by mcerquei          #+#    #+#             */
-/*   Updated: 2022/09/19 04:46:17 by mcerquei         ###   ########.fr       */
+/*   Created: 2022/04/13 21:44:06 by mcerquei          #+#    #+#             */
+/*   Updated: 2022/04/29 17:30:09 by mcerquei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef LIBFT_H
+#include "libft.h"
 
-# define LIBFT_H
+void	*ft_calloc(size_t nmemb, size_t size)
+{
+	void					*ptr;
+	long long unsigned int	result;
 
-# include <stdlib.h>
-# include <unistd.h>
-# include <stdarg.h>
-
-
-int		ft_printf(const char *str_format, ...);
-
-int		ft_printf_str(char *s);
-
-int		ft_printf_char(char c);
-
-int		ft_printf_signed_int(int n);
-
-char	*ft_itoa(int n);
-
-size_t	ft_strlen(const char *s);
-
-void	*ft_calloc(size_t nmemb, size_t size);
-
-char	**ft_split(char const *s, char c);
-
-#endif
+	result = nmemb * size;
+	if (nmemb != 0 && result / nmemb != size)
+		return (NULL);
+	ptr = malloc(nmemb * size);
+	if (!ptr)
+		return (NULL);
+	while (result--)
+		((unsigned char *)ptr)[result] = 0;
+	return (ptr);
+}

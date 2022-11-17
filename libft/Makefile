@@ -13,7 +13,9 @@ SRC = 	ft_printf.c \
 		ft_printf_char.c \
 		ft_printf_signed_int.c \
 		ft_itoa.c \
-		ft_strlen.c
+		ft_strlen.c \
+		ft_calloc.c \
+		ft_split.c
 
 
 SRC_OBJ = $(SRC:.c=.o)

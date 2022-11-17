@@ -24,10 +24,12 @@ $(NAME): $(LIBFT_A) $(OBJ)
 $(LIBFT_A):
 	cd libft && make
 
-clean:
+clean: 
+	$(CLEAN_LIBFT)
 	$(RM) $(OBJ)
 
-fclean: clean
+fclean: clean 
+	$(FCLEAN_LIBFT)
 	$(RM) $(NAME)
 
 re: fclean all
